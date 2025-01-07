@@ -1,5 +1,5 @@
 // Copyright(C) Facebook, Inc. and its affiliates.
-use crypto::{generate_production_keypair, PublicKey, SecretKey};
+use crypto::{generate_keypair, generate_production_keypair, PublicKey, SecretKey};
 use log::info;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
@@ -9,6 +9,8 @@ use std::io::BufWriter;
 use std::io::Write as _;
 use std::net::SocketAddr;
 use thiserror::Error;
+use rand::rngs::StdRng;
+use rand::SeedableRng as _;
 
 #[derive(Error, Debug)]
 pub enum ConfigError {
@@ -260,6 +262,19 @@ impl Export for KeyPair {}
 impl KeyPair {
     pub fn new() -> Self {
         let (name, secret) = generate_production_keypair();
+        Self { name, secret }
+    }
+
+    pub fn new_with_rng(x: &str) -> Self {
+        let mut rng_seed: [u8; 32] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        let mut index = 0;
+        for b in x.as_bytes() {
+            rng_seed[index] = b.clone();
+            index+=1;
+        }
+        println!("{:?}", x);
+        let mut rng = StdRng::from_seed(rng_seed);
+        let (name, secret) = generate_keypair(&mut rng);
         Self { name, secret }
     }
 }

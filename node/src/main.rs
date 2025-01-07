@@ -56,7 +56,7 @@ async fn main() -> Result<()> {
     logger.init();
 
     match matches.subcommand() {
-        ("generate_keys", Some(sub_matches)) => KeyPair::new()
+        ("generate_keys", Some(sub_matches)) => KeyPair::new_with_rng(sub_matches.value_of("filename").unwrap())
             .export(sub_matches.value_of("filename").unwrap())
             .context("Failed to generate key pair")?,
         ("run", Some(sub_matches)) => run(sub_matches).await?,
