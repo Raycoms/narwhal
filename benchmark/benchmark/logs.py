@@ -6,7 +6,7 @@ from os.path import join
 from re import findall, search
 from statistics import mean
 
-from benchmark.utils import Print
+from utils import Print
 
 
 class ParseError(Exception):
@@ -98,6 +98,8 @@ class LogParser:
         if search(r'(?:panicked|Error)', log) is not None:
             raise ParseError('Primary(s) panicked')
 
+        #TODO: We need to query this from the primary-id.log and do the same processing then.
+        #TODO: Check how remote deployment does it, maybe we can reuse this python even and invoke a python script with the right params
         tmp = findall(r'\[(.*Z) .* Created B\d+\([^ ]+\) -> ([^ ]+=)', log)
         tmp = [(d, self._to_posix(t)) for t, d in tmp]
         proposals = self._merge_results([tmp])
