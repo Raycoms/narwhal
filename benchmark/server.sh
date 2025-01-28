@@ -19,13 +19,17 @@ cd narwhal && git fetch -f && git checkout -f main
 export PATH="/root/.cargo/bin:${PATH}"
 source "/root/.cargo/env"
 rustup default stable
+
+echo "waaaaaat"
+
 cd node && cargo build --quiet --release --features benchmark
 
-node="./master/target/release/node"
-client="./master/target/release/benchmark_client"
+node="./target/release/node"
+client="./target/release/benchmark_client"
 cd ..
-rm ${node} ; rm benchmark_client ; ln -s ${node} . ; ln -s ${client} .
+#ln -s ${node} . ; ln -s ${client} .
 
+echo "syncing time"
 sleep 30
 
 id=0
@@ -58,6 +62,8 @@ do
   ((i++))
 done
 
+echo "collected ips"
+
 sleep 20
 
 # Store all services in the list of IPs (first internal nodes then the leaf nodes)
@@ -74,21 +80,20 @@ done < "$input"
 
 sleep 5
 
-# Cleanup past results.
-rm -r .db-* ; rm .*.json ; mkdir -p results
-
 cd benchmark
-echo global_paramters.json > .parameters.json
+cp global_parameters.json .parameters.json
 mkdir logs
 
-count=i
-for index in ${count}:
+count=$i
+for index in $(seq 1 $count);
+do
   ./node generate_keys --filename ".node-${index}.json"
+done
 
 echo "{ \n authorities: {" > ".committee.json"
 
-counter = 0
-for file in ".node-*.json"
+counter=0
+for file in .node-*.json;
 do
   ip=${ourips[counter]}
   thename=$(grep -m 1 '"name"' "${file}" | sed -E 's/.*"name"[[:space:]]*:[[:space:]]*"(.*?)".*/\1/')
@@ -107,8 +112,9 @@ do
            \n }
            \n }" >> ".committee.json"
   ((counter++))
-  if $counter < count
+  if $counter < count; then
     echo "," >> ".committee.json"
+  fi
 done
 
 echo "} \n }" >> ".committee.json"
@@ -120,10 +126,10 @@ echo "Starting Application: #${i}"
 ## Startup Narwahl
 
 # Startup Primaries
-./node -vv run --keys ".node-${id}.json" --committee ".committee.json" --store ".db-${id}" --parameters ".parameters.json" primary > "logs/primary-${id}.log" &
+./../target/release/node -vv run --keys ".node-${id}.json" --committee ".committee.json" --store ".db-${id}" --parameters ".parameters.json" primary > "logs/primary-${id}.log" &
 
 # Startup Workers
-./node -vv run --keys ".node-${id}.json" --committee ".committee.json" --store ".db-${id}-0" --parameters ".parameters.json" worker --id 0 &
+./../target/release/node -vv run --keys ".node-${id}.json" --committee ".committee.json" --store ".db-${id}-0" --parameters ".parameters.json" worker --id 0 > "logs/worker-${id}.log" &
 
 sleep 40
 
@@ -133,12 +139,7 @@ sudo tc qdisc add dev eth0 root netem delay ${latency}ms limit 400000 rate ${ban
 sleep 25
 
 # Start Clients on Host Machine
-if [ ${id} == 0 ]; then
-  rate_share = ceil(rate / committee.workers())
-  for ip in ourips
-  do
-    ./benchmark_client ${ip}:4004 --size 32 --rate 50_000
-fi
+./../target/release/benchmark_client ${ip}:4004 --size 32 --rate 50_000
 
 sleep 300
 

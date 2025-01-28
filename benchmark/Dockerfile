@@ -12,7 +12,8 @@ RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN apt-get install -y clang
 
-RUN git clone https://github.com/facebookresearch/narwhal.git && cd /narwhal && git pull && cd benchmark
+RUN git clone https://github.com/Raycoms/narwhal.git && cd /narwhal && git pull && cd benchmark
+RUN cd narwhal/node && cargo build --quiet --release --features benchmark
 
 ADD ./server.sh /
 
