@@ -36,13 +36,15 @@ do
         docker stack deploy -c narwahl-temp.yaml narwahlservice &
         # Docker startup time + 5*60s of experiment runtime
         sleep 450
-        
+
+        # Cleanup old logs
+        rm logs/*
         # Collect and print results.
         for container in $(docker ps -q -f name="server")
         do
-            docker exec $container bash -c "mkdir -p /extract; cp -f /narwhal/benchmark/logs/primary* /extract"
+            docker exec $container bash -c "mkdir -p /extract; cp -f /narwhal/benchmark/logs/* /extract"
             docker cp $container:/extract logs
-            cp logs/extract/* logs
+            mv logs/extract/* logs
         done
 
         python3 benchmark/process_logs.py

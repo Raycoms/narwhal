@@ -15,12 +15,10 @@ blocksize=$7
 service="server-$NARWAHL_UUID"
 service1="server1-$NARWAHL_UUID"
 
-cd narwhal && git fetch -f && git checkout -f main
+cd narwhal && git pull && git fetch -f && git checkout -f main
 export PATH="/root/.cargo/bin:${PATH}"
 source "/root/.cargo/env"
 rustup default stable
-
-echo "waaaaaat"
 
 cd node && cargo build --quiet --release --features benchmark
 
@@ -70,13 +68,19 @@ sleep 20
 dig A $service1 +short | sort -u | sed -e 's/$/ 1/' > ips
 dig A $service +short | sort -u | sed -e 's/$/ 1/' >> ips
 
+cat ips
+
 # Add ips to array
 ourips=()
 input="ips"
 while IFS= read -r line
 do
-  ourips+=line
+  # Extract the first word using parameter expansion
+  first_word=${line%% *}
+  ourips+=("$first_word")
 done < "$input"
+
+echo "${ourips[@]}"
 
 sleep 5
 
@@ -85,39 +89,43 @@ cp global_parameters.json .parameters.json
 mkdir logs
 
 count=$i
-for index in $(seq 1 $count);
+for index in $(seq 0 $((count - 1)));
 do
-  ./node generate_keys --filename ".node-${index}.json"
+  ./../target/release/node generate_keys --filename ".node-${index}.json"
 done
 
-echo "{ \n authorities: {" > ".committee.json"
+echo "{" > ".committee.json"
+echo " \"authorities\": {" >> ".committee.json"
 
 counter=0
 for file in .node-*.json;
 do
   ip=${ourips[counter]}
   thename=$(grep -m 1 '"name"' "${file}" | sed -E 's/.*"name"[[:space:]]*:[[:space:]]*"(.*?)".*/\1/')
-  echo "'${thename}': {
-           \n 'stake': 1,
-           \n 'primary': {
-           \n    'primary_to_primary': ${ip}:4000,
-           \n    'worker_to_primary': ${ip}:4001,
-           \n },
-           \n 'workers': {
-           \n    '0': {
-           \n        'primary_to_worker': ${ip}:4002,
-           \n        'worker_to_worker': ${ip}:4003,
-           \n        'transactions': ${ip}:4004
-           \n    },
-           \n }
-           \n }" >> ".committee.json"
+  echo "\"${thename}\": {
+            \"stake\": 1,
+            \"primary\": {
+               \"primary_to_primary\": \"${ip}:4000\",
+               \"worker_to_primary\": \"${ip}:4001\"
+            },
+            \"workers\": {
+               \"0\": {
+                   \"primary_to_worker\": \"${ip}:4002\",
+                   \"worker_to_worker\": \"${ip}:4003\",
+                   \"transactions\": \"${ip}:4004\"
+               }
+            }
+            }" >> ".committee.json"
   ((counter++))
-  if $counter < count; then
+  if [[ $counter -lt $count ]]; then
     echo "," >> ".committee.json"
   fi
 done
 
-echo "} \n }" >> ".committee.json"
+echo " }
+}" >> ".committee.json"
+
+cat ".committee.json"
 
 sleep 20
 
@@ -126,10 +134,10 @@ echo "Starting Application: #${i}"
 ## Startup Narwahl
 
 # Startup Primaries
-./../target/release/node -vv run --keys ".node-${id}.json" --committee ".committee.json" --store ".db-${id}" --parameters ".parameters.json" primary > "logs/primary-${id}.log" &
+./../target/release/node -vv run --keys ".node-${id}.json" --committee ".committee.json" --store ".db-${id}" --parameters ".parameters.json" primary |& tee "logs/primary-${id}.log" &
 
 # Startup Workers
-./../target/release/node -vv run --keys ".node-${id}.json" --committee ".committee.json" --store ".db-${id}-0" --parameters ".parameters.json" worker --id 0 > "logs/worker-${id}.log" &
+./../target/release/node -vv run --keys ".node-${id}.json" --committee ".committee.json" --store ".db-${id}-0" --parameters ".parameters.json" worker --id 0 |& tee "logs/worker-${id}.log" &
 
 sleep 40
 
@@ -139,7 +147,7 @@ sudo tc qdisc add dev eth0 root netem delay ${latency}ms limit 400000 rate ${ban
 sleep 25
 
 # Start Clients on Host Machine
-./../target/release/benchmark_client ${ip}:4004 --size 32 --rate 50_000
+./../target/release/benchmark_client ${ip}:4004 --size 32 --rate 50000 |& tee "logs/client-${id}-0.log" &
 
 sleep 300
 
