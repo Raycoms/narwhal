@@ -56,7 +56,7 @@ do
 
                 ssh -o StrictHostKeyChecking=no -i ~root/.ssh/interid $node "docker exec $container bash -c 'mkdir -p /extract; cp -f /narwhal/benchmark/logs/* /extract'"
                 ssh -o StrictHostKeyChecking=no -i ~root/.ssh/interid $node "docker cp $container:/extract /tmp/logs_container"
-                scp -o StrictHostKeyChecking=no -i ~root/.ssh/interid -r $node:/tmp/logs_container/extract/* $LOG_DIR/
+                scp -o StrictHostKeyChecking=no -i ~root/.ssh/interid -r $node:/tmp/logs_container/* $LOG_DIR/
                 ssh -o StrictHostKeyChecking=no -i ~root/.ssh/interid $node "rm -rf /tmp/logs_container"
             done
         done
