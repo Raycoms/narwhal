@@ -11,6 +11,7 @@ QTY2_STRING=theqty2
 
 FILENAME2="experiments"
 LINES=$(cat $FILENAME2 | grep "^[^#;]")
+LOG_DIR="logs"
 
 # Each LINE in the experiment file is one experimental setup
 for LINE in $LINES
@@ -38,18 +39,32 @@ do
         sleep 450
 
         # Cleanup old logs
-        rm logs/*
-        # Collect and print results.
-        for container in $(docker ps -q -f name="server")
-        do
-            docker exec $container bash -c "mkdir -p /extract; cp -f /narwhal/benchmark/logs/* /extract"
-            docker cp $container:/extract logs
-            mv logs/extract/* logs
+        rm $LOG_DIR/*
+
+        # Get the list of nodes
+        nodes=$(docker node ls --format '{{.Hostname}}')
+
+        # Loop through each node
+        for node in $nodes; do
+            echo "Processing node: $node"
+
+            # Get the container IDs for this node
+            containers=$(ssh -i ~root/.ssh/interid $node "docker ps -q -f name='server'")
+
+            for container in $containers; do
+                # "Fetching logs from container: $container on node: $node"
+
+                ssh -i ~root/.ssh/interid $node "docker exec $container bash -c 'mkdir -p /extract; cp -f /narwhal/benchmark/logs/* /extract'"
+                ssh -i ~root/.ssh/interid $node "docker cp $container:/extract /tmp/logs_container"
+                scp -i ~root/.ssh/interid -r $node:/tmp/logs_container/extract/* $LOG_DIR/
+                ssh -i ~root/.ssh/interid $node "rm -rf /tmp/logs_container"
+            done
         done
+
+        echo "Logs collected in $LOG_DIR"
 
         python3 benchmark/process_logs.py
         docker stack rm narwahlservice
         sleep 30
-
   done
 done

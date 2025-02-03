@@ -1,11 +1,10 @@
 # type, fanout pipeline-depth pipeline-lat latency bandwidth block-size : number of internals : number of total : suggested physical machines
-# Figure 6
-#['bls','10','4','0','0','1000000','1000']:11:89:1
+# 20 nodes per physical machine
 
-
-['bls','4','1','0','0','1000000','1000']:2:2:1
-#['bls','10','10','10','50','100','1000']:11:89:5
-#['bls','10','3','10','5','1000','1000']:11:89:5
+# For narwahl the first three variables don't matter.
+['bls','0','0','0','100','25','1000']:11:89:5
+['bls','0','0','0','50','100','1000']:11:89:5
+['bls','0','0','0','5','1000','1000']:11:89:5
 
 # ['bls','14','5','10','100','25','1000']:15:185:10
 # ['bls','14','5','10','50','100','1000']:15:185:10
