@@ -49,15 +49,15 @@ do
             echo "Processing node: $node"
 
             # Get the container IDs for this node
-            containers=$(ssh -i ~root/.ssh/interid $node "docker ps -q -f name='server'")
+            containers=$(ssh -o StrictHostKeyChecking=no -i ~root/.ssh/interid $node "docker ps -q -f name='server'")
 
             for container in $containers; do
                 # "Fetching logs from container: $container on node: $node"
 
-                ssh -i ~root/.ssh/interid $node "docker exec $container bash -c 'mkdir -p /extract; cp -f /narwhal/benchmark/logs/* /extract'"
-                ssh -i ~root/.ssh/interid $node "docker cp $container:/extract /tmp/logs_container"
-                scp -i ~root/.ssh/interid -r $node:/tmp/logs_container/extract/* $LOG_DIR/
-                ssh -i ~root/.ssh/interid $node "rm -rf /tmp/logs_container"
+                ssh -o StrictHostKeyChecking=no -i ~root/.ssh/interid $node "docker exec $container bash -c 'mkdir -p /extract; cp -f /narwhal/benchmark/logs/* /extract'"
+                ssh -o StrictHostKeyChecking=no -i ~root/.ssh/interid $node "docker cp $container:/extract /tmp/logs_container"
+                scp -o StrictHostKeyChecking=no -i ~root/.ssh/interid -r $node:/tmp/logs_container/extract/* $LOG_DIR/
+                ssh -o StrictHostKeyChecking=no -i ~root/.ssh/interid $node "rm -rf /tmp/logs_container"
             done
         done
 
