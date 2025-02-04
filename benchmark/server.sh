@@ -147,7 +147,7 @@ sudo tc qdisc add dev eth0 root netem delay ${latency}ms limit 400000 rate ${ban
 sleep 25
 
 # Start Clients on Host Machine
-./../target/release/benchmark_client ${ip}:4004 --size 32 --rate 50000 |& tee "logs/client-${id}-0.log" &
+./../target/release/benchmark_client ${ip}:4004 --size 32 --rate 500 |& tee "logs/client-${id}-0.log" &
 
 sleep 300
 
