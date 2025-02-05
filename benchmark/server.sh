@@ -100,19 +100,19 @@ echo " \"authorities\": {" >> ".committee.json"
 counter=0
 for file in .node-*.json;
 do
-  ip=${ourips[counter]}
+  localip=${ourips[counter]}
   thename=$(grep -m 1 '"name"' "${file}" | sed -E 's/.*"name"[[:space:]]*:[[:space:]]*"(.*?)".*/\1/')
   echo "\"${thename}\": {
             \"stake\": 1,
             \"primary\": {
-               \"primary_to_primary\": \"${ip}:4000\",
-               \"worker_to_primary\": \"${ip}:4001\"
+               \"primary_to_primary\": \"${localip}:4000\",
+               \"worker_to_primary\": \"${localip}:4001\"
             },
             \"workers\": {
                \"0\": {
-                   \"primary_to_worker\": \"${ip}:4002\",
-                   \"worker_to_worker\": \"${ip}:4003\",
-                   \"transactions\": \"${ip}:4004\"
+                   \"primary_to_worker\": \"${localip}:4002\",
+                   \"worker_to_worker\": \"${localip}:4003\",
+                   \"transactions\": \"${localip}:4004\"
                }
             }
             }" >> ".committee.json"
@@ -147,7 +147,7 @@ sudo tc qdisc add dev eth0 root netem delay ${latency}ms limit 400000 rate ${ban
 sleep 25
 
 # Start Clients on Host Machine
-./../target/release/benchmark_client ${ip}:4004 --size 32 --rate ${fanout} |& tee "logs/client-${id}-0.log" &
+./../target/release/benchmark_client ${myip}:4004 --size 32 --rate ${fanout} |& tee "logs/client-${id}-0.log" &
 
 sleep 300
 
