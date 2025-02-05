@@ -36,7 +36,7 @@ do
         # Deploy experiment
         docker stack deploy -c narwahl-temp.yaml narwahlservice &
         # Docker startup time + 5*60s of experiment runtime
-        sleep 450
+        sleep 500
 
         # Cleanup old logs
         rm $LOG_DIR/*
@@ -65,6 +65,7 @@ do
 
         python3 benchmark/process_logs.py
         docker stack rm narwahlservice
+        docker container prune -f
         sleep 30
   done
 done

@@ -139,7 +139,7 @@ echo "Starting Application: #${i}"
 # Startup Workers
 ./../target/release/node -vv run --keys ".node-${id}.json" --committee ".committee.json" --store ".db-${id}-0" --parameters ".parameters.json" worker --id 0 |& tee "logs/worker-${id}.log" &
 
-sleep 40
+sleep 90
 
 #Configure Network restrictions
 sudo tc qdisc add dev eth0 root netem delay ${latency}ms limit 400000 rate ${bandwidth}mbit &
