@@ -146,13 +146,11 @@ sudo tc qdisc add dev eth0 root netem delay ${latency}ms limit 400000 rate ${ban
 
 sleep 25
 
-# Start Clients on Host Machine
-./../target/release/benchmark_client ${myip}:4004 --size 32 --rate ${fanout} |& tee "logs/client-${id}-0.log" &
+tmux new -d -s "client-${id}" "./../target/release/benchmark_client ${myip}:4004 --size 32 --rate ${fanout} |& tee logs/client-${id}-0.log"
 
 sleep 300
 
 tmux kill-server
-
 
 # Wait for the container to be manually killed
 sleep 3000
