@@ -108,7 +108,7 @@ impl Worker {
             .worker(&self.name, &self.id)
             .expect("Our public key or worker id is not in the committee")
             .primary_to_worker;
-        //address.set_ip("0.0.0.0".parse().unwrap());
+        address.set_ip("0.0.0.0".parse().unwrap());
         Receiver::spawn(
             address,
             /* handler */
@@ -146,7 +146,7 @@ impl Worker {
             .worker(&self.name, &self.id)
             .expect("Our public key or worker id is not in the committee")
             .transactions;
-        //address.set_ip("0.0.0.0".parse().unwrap());
+        address.set_ip("0.0.0.0".parse().unwrap());
         Receiver::spawn(
             address,
             /* handler */ TxReceiverHandler { tx_batch_maker },
@@ -204,7 +204,7 @@ impl Worker {
             .worker(&self.name, &self.id)
             .expect("Our public key or worker id is not in the committee")
             .worker_to_worker;
-        //address.set_ip("0.0.0.0".parse().unwrap());
+        address.set_ip("0.0.0.0".parse().unwrap());
         Receiver::spawn(
             address,
             /* handler */
