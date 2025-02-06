@@ -13,7 +13,6 @@ blocksize=$7
 
 # Get Service-name
 service="server-$NARWAHL_UUID"
-service1="server1-$NARWAHL_UUID"
 
 cd narwhal && git pull && git fetch -f && git checkout -f main
 export PATH="/root/.cargo/bin:${PATH}"
@@ -35,18 +34,6 @@ i=0
 
 # Go through the list of servers of the given services to identify the number of servers and the id of this server.
 
-for ip in $(dig A $service1 +short | sort -u)
-do
-  for myip in $(ifconfig -a | awk '$1 == "inet" {print $2}')
-  do
-    if [ ${ip} == ${myip} ]
-    then
-      id=${i}
-      echo "This is: ${ip} ${id}"
-    fi
-  done
-  ((i++))
-done
 for ip in $(dig A $service +short | sort -u)
 do
   for myip in $(ifconfig -a | awk '$1 == "inet" {print $2}')
@@ -65,8 +52,7 @@ echo "collected ips"
 sleep 20
 
 # Store all services in the list of IPs (first internal nodes then the leaf nodes)
-dig A $service1 +short | sort -u | sed -e 's/$/ 1/' > ips
-dig A $service +short | sort -u | sed -e 's/$/ 1/' >> ips
+dig A $service +short | sort -u | sed -e 's/$/ 1/' > ips
 
 cat ips
 
