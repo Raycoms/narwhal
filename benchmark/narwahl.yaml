@@ -16,22 +16,6 @@ services:
     networks:
       - KauriNet
 
-  server-becd9691-b958-47c3-9ac3-688ca48fb6d6:
-    image: narwahl
-    command: thecmd
-    hostname: server
-    cap_add:
-      - NET_ADMIN
-    labels:
-      becd9691-b958-47c3-9ac3-688ca48fb6d6: "true"
-    deploy:
-      replicas: theqty2
-      endpoint_mode: dnsrr
-    environment:
-      NARWAHL_UUID: 'becd9691-b958-47c3-9ac3-688ca48fb6d6'
-    networks:
-      - KauriNet
-
 networks:
   KauriNet:
     external:

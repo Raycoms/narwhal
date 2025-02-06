@@ -1,6 +1,6 @@
 #!/bin/bash
 
-trap "docker stack rm narwahlservice" EXIT
+trap "docker stack rm narwhalservice" EXIT
 
 FILENAME=narwahl.yaml
 EXPORT_FILENAME=narwahl-temp.yaml
@@ -23,18 +23,18 @@ do
 
   sed  "s/${ORIGINAL_STRING}/${split[0]}/g" $FILENAME > $EXPORT_FILENAME
   sed  -i "s/${QTY1_STRING}/${split[1]}/g" $EXPORT_FILENAME
-  sed  -i "s/${QTY2_STRING}/${split[2]}/g" $EXPORT_FILENAME
+  #sed  -i "s/${QTY2_STRING}/${split[2]}/g" $EXPORT_FILENAME
 
-  total_qty=$((split[1]+split[2]))
+  total_qty=$((split[1]))
 
   echo '**********************************************'
-  echo "*** This setup needs ${split[3]} physical machines and has total of ${total_qty} machines! ***"
+  echo "*** This setup needs ${split[3]} physical machines and has total of ${total_qty} processes! ***"
   echo '**********************************************'
 
   for i in {1..5}
   do
         # Deploy experiment
-        docker stack deploy -c narwahl-temp.yaml narwahlservice &
+        docker stack deploy -c narwahl-temp.yaml narwhalservice &
         # Docker startup time + 5*60s of experiment runtime
         sleep 500
 
@@ -64,7 +64,7 @@ do
         echo "Logs collected in $LOG_DIR"
 
         python3 benchmark/process_logs.py
-        docker stack rm narwahlservice
+        docker stack rm narwhalservice
         docker container prune -f
         sleep 30
   done

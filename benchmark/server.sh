@@ -42,7 +42,7 @@ do
     if [ ${ip} == ${myip} ]
     then
       id=${i}
-      echo "This is: ${ip}"
+      echo "This is: ${ip} ${id}"
     fi
   done
   ((i++))
@@ -54,7 +54,7 @@ do
     if [ ${ip} == ${myip} ]
     then
       id=${i}
-      echo "This is: ${ip}"
+      echo "This is: ${ip} ${id}"
     fi
   done
   ((i++))
@@ -129,7 +129,7 @@ cat ".committee.json"
 
 sleep 20
 
-echo "Starting Application: #${i}"
+echo "Starting Application: #${id}"
 
 ## Startup Narwahl
 
