@@ -4,6 +4,6 @@
     "header_size": 10,
     "max_batch_delay": 200,
     "max_header_delay": 200,
-    "sync_retry_delay": 10000,
-    "sync_retry_nodes": 3
+    "sync_retry_delay": 100,
+    "sync_retry_nodes": 5
 }
