@@ -51,7 +51,7 @@ echo "collected ips"
 
 sleep 20
 
-# Store all services in the list of IPs (first internal nodes then the leaf nodes)
+# Store all services in the list of IPs
 dig A $service +short | sort -u | sed -e 's/$/ 1/' > ips
 
 cat ips
@@ -113,7 +113,7 @@ echo " }
 
 cat ".committee.json"
 
-sleep 20
+sleep 5
 
 echo "Starting Application: #${id}"
 
@@ -121,14 +121,16 @@ echo "Starting Application: #${id}"
 
 # Startup Primaries
 
-tmux new -d -s "primary-${id}" "./../target/release/node -vv run --keys .node-${id}.json --committee .committee.json --store .db-${id} --parameters .parameters.json primary |& tee logs/primary-${id}.log"
+tmux new -d -s "primary-${id}" "./../target/release/node -vvv run --keys .node-${id}.json --committee .committee.json --store .db-${id} --parameters .parameters.json primary |& tee logs/primary-${id}.log"
 
-tmux new -d -s "worker-${id}" "./../target/release/node -vv run --keys .node-${id}.json --committee .committee.json --store .db-${id}-0 --parameters .parameters.json worker --id 0 |& tee logs/worker-${id}.log"
+sleep 10
+
+tmux new -d -s "worker-${id}" "./../target/release/node -vvv run --keys .node-${id}.json --committee .committee.json --store .db-${id}-0 --parameters .parameters.json worker --id 0 |& tee logs/worker-${id}.log"
 
 sleep 90
 
 #Configure Network restrictions
-sudo tc qdisc add dev eth0 root netem delay ${latency}ms limit 400000 rate ${bandwidth}mbit &
+#sudo tc qdisc add dev eth0 root netem delay ${latency}ms limit 400000 rate ${bandwidth}mbit &
 
 sleep 25
 
