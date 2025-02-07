@@ -123,18 +123,22 @@ echo "Starting Application: #${id}"
 
 tmux new -d -s "primary-${id}" "./../target/release/node -vvv run --keys .node-${id}.json --committee .committee.json --store .db-${id} --parameters .parameters.json primary |& tee logs/primary-${id}.log"
 
-sleep 10
-
 tmux new -d -s "worker-${id}" "./../target/release/node -vvv run --keys .node-${id}.json --committee .committee.json --store .db-${id}-0 --parameters .parameters.json worker --id 0 |& tee logs/worker-${id}.log"
 
 sleep 90
 
 #Configure Network restrictions
-#sudo tc qdisc add dev eth0 root netem delay ${latency}ms limit 400000 rate ${bandwidth}mbit &
+sudo tc qdisc add dev eth0 root netem delay ${latency}ms limit 400000 rate ${bandwidth}mbit &
 
-sleep 25
+sleep 5
 
-tmux new -d -s "client-${id}" "./../target/release/benchmark_client ${myip}:4004 --size 32 --rate ${fanout} |& tee logs/client-${id}-0.log"
+ports=()
+
+for ip in "${ips[@]}"; do
+    ports+=("$ip:4004")
+done
+
+tmux new -d -s "client-${id}" "./../target/release/benchmark_client ${myip}:4004 --size 32 --rate ${fanout} --nodes ${ports} |& tee logs/client-${id}-0.log"
 
 sleep 300
 
