@@ -33,7 +33,7 @@ id=0
 i=0
 
 # Go through the list of servers of the given services to identify the number of servers and the id of this server.
-
+themyip=0
 for ip in $(dig A $service +short | sort -u)
 do
   for myip in $(ifconfig -a | awk '$1 == "inet" {print $2}')
@@ -41,6 +41,7 @@ do
     if [ ${ip} == ${myip} ]
     then
       id=${i}
+      themyip=${myip}
       echo "This is: ${ip} ${id}"
     fi
   done
@@ -83,26 +84,36 @@ done
 echo "{" > ".committee.json"
 echo " \"authorities\": {" >> ".committee.json"
 
+ports=()
+
 counter=0
+ipstart=5000
+myport=0
 for file in .node-*.json;
 do
-  localip=${ourips[counter]}
+  localip=${ourips[$counter]}
   thename=$(grep -m 1 '"name"' "${file}" | sed -E 's/.*"name"[[:space:]]*:[[:space:]]*"(.*?)".*/\1/')
   echo "\"${thename}\": {
             \"stake\": 1,
             \"primary\": {
-               \"primary_to_primary\": \"${localip}:4000\",
-               \"worker_to_primary\": \"${localip}:4001\"
+               \"primary_to_primary\": \"${localip}:${ipstart}\",
+               \"worker_to_primary\": \"${localip}:$((ipstart + 1))\"
             },
             \"workers\": {
                \"0\": {
-                   \"primary_to_worker\": \"${localip}:4002\",
-                   \"worker_to_worker\": \"${localip}:4003\",
-                   \"transactions\": \"${localip}:4004\"
+                   \"primary_to_worker\": \"${localip}:$((ipstart + 2))\",
+                   \"worker_to_worker\": \"${localip}:$((ipstart + 3))\",
+                   \"transactions\": \"${localip}:$((ipstart + 4))\"
                }
             }
             }" >> ".committee.json"
+  if [ "${localip}" = "${themyip}" ]; then
+        myport=$((ipstart + 4))
+  fi
+  ports+=("$localip:$((ipstart + 4))")
+
   ((counter++))
+  ipstart=$((ipstart + 5))
   if [[ $counter -lt $count ]]; then
     echo "," >> ".committee.json"
   fi
@@ -125,22 +136,18 @@ tmux new -d -s "primary-${id}" "./../target/release/node -vvv run --keys .node-$
 
 tmux new -d -s "worker-${id}" "./../target/release/node -vvv run --keys .node-${id}.json --committee .committee.json --store .db-${id}-0 --parameters .parameters.json worker --id 0 |& tee logs/worker-${id}.log"
 
-sleep 90
+sleep 20
 
 #Configure Network restrictions
 sudo tc qdisc add dev eth0 root netem delay ${latency}ms limit 400000 rate ${bandwidth}mbit &
 
 sleep 5
 
-ports=()
 
-for ip in "${ips[@]}"; do
-    ports+=("$ip:4004")
-done
+echo "--nodes ${ports[*]}"
+tmux new -d -s "client-${id}" "./../target/release/benchmark_client ${myip}:${myport} --size 32 --rate ${fanout} --nodes ${ports[*]} |& tee logs/client-${id}-0.log"
 
-tmux new -d -s "client-${id}" "./../target/release/benchmark_client ${myip}:4004 --size 32 --rate ${fanout} --nodes ${ports} |& tee logs/client-${id}-0.log"
-
-sleep 300
+sleep 100
 
 tmux kill-server
 
