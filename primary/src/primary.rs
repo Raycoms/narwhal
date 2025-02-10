@@ -93,7 +93,7 @@ impl Primary {
             .primary(&name)
             .expect("Our public key or worker id is not in the committee")
             .primary_to_primary;
-
+        address.set_ip("0.0.0.0".parse().unwrap());
         NetworkReceiver::spawn(
             address,
             /* handler */
@@ -112,7 +112,7 @@ impl Primary {
             .primary(&name)
             .expect("Our public key or worker id is not in the committee")
             .worker_to_primary;
-
+        address.set_ip("0.0.0.0".parse().unwrap());
         NetworkReceiver::spawn(
             address,
             /* handler */
