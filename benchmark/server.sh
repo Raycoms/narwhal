@@ -35,7 +35,7 @@ i=0
 
 # Go through the list of servers of the given services to identify the number of servers and the id of this server.
 themyip=0
-for ip in $(dig A $service +short | sort -u)
+for ip in $(dig A $service +short | sort -u | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n)
 do
   for myip in $(ifconfig -a | awk '$1 == "inet" {print $2}')
   do
@@ -54,7 +54,7 @@ echo "collected ips"
 sleep 20
 
 # Store all services in the list of IPs
-dig A $service +short | sort -u | sed -e 's/$/ 1/' > ips
+dig A $service +short | sort -u | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | sed -e 's/$/ 1/' > ips
 
 cat ips
 
@@ -90,10 +90,10 @@ ports=()
 counter=0
 ipstart=5000
 myport=0
-for file in .node-*.json;
+for ((i=0; i<count; i++));
 do
   localip=${ourips[$counter]}
-  thename=$(grep -m 1 '"name"' "${file}" | sed -E 's/.*"name"[[:space:]]*:[[:space:]]*"(.*?)".*/\1/')
+  thename=$(grep -m 1 '"name"' ".node-${i}.json" | sed -E 's/.*"name"[[:space:]]*:[[:space:]]*"(.*?)".*/\1/')
   echo "\"${thename}\": {
             \"stake\": 1,
             \"primary\": {
@@ -114,7 +114,7 @@ do
   ports+=("$localip:$((ipstart + 4))")
 
   ((counter++))
-  ipstart=$((ipstart + 5))
+  ipstart=$((ipstart + 10))
   if [[ $counter -lt $count ]]; then
     echo "," >> ".committee.json"
   fi
