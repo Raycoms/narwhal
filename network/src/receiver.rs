@@ -47,7 +47,7 @@ impl<Handler: MessageHandler> Receiver<Handler> {
     async fn run(&self) {
         let listener = TcpListener::bind(&self.address)
             .await
-            .expect("Failed to bind TCP port");
+            .expect(&format!("Failed to bind TCP port {}", &self.address));
 
         debug!("Listening on {}", self.address);
         loop {

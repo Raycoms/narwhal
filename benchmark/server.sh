@@ -18,6 +18,7 @@ cd narwhal && git pull && git fetch -f && git checkout -f main
 export PATH="/root/.cargo/bin:${PATH}"
 source "/root/.cargo/env"
 rustup default stable
+export RUST_BACKTRACE=1
 
 cd node && cargo build --quiet --release --features benchmark
 
