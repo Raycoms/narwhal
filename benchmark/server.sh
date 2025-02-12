@@ -51,8 +51,6 @@ done
 
 echo "collected ips"
 
-sleep 20
-
 # Store all services in the list of IPs
 dig A $service +short | sort -u | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | sed -e 's/$/ 1/' > ips
 
@@ -69,8 +67,6 @@ do
 done < "$input"
 
 echo "${ourips[@]}"
-
-sleep 5
 
 cd benchmark
 cp global_parameters.json .parameters.json
@@ -124,8 +120,6 @@ echo " }
 }" >> ".committee.json"
 
 cat ".committee.json"
-
-sleep 5
 
 echo "Starting Application: #${id}"
 
