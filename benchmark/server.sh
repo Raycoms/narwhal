@@ -135,6 +135,7 @@ sleep 20
 
 #Configure Network restrictions
 sudo tc qdisc add dev eth0 root netem delay ${latency}ms limit 400000 rate ${bandwidth}mbit &
+sudo tc qdisc add dev kauri_network root netem delay ${latency}ms limit 400000 rate ${bandwidth}mbit &
 
 sleep 5
 
