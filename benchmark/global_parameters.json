@@ -2,8 +2,8 @@
     "batch_size": 31250,
     "gc_depth": 50,
     "header_size": 10,
-    "max_batch_delay": 5000,
-    "max_header_delay": 5000,
-    "sync_retry_delay": 10000,
+    "max_batch_delay": 50000,
+    "max_header_delay": 50000,
+    "sync_retry_delay": 100000,
     "sync_retry_nodes": 3
 }
