@@ -110,7 +110,7 @@ do
   ports+=("$localip:$((ipstart + 4))")
 
   ((counter++))
-  ipstart=$((ipstart + 10))
+  #ipstart=$((ipstart + 10))
   if [[ $counter -lt $count ]]; then
     echo "," >> ".committee.json"
   fi
