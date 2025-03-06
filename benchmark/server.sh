@@ -28,7 +28,7 @@ cd ..
 #ln -s ${node} . ; ln -s ${client} .
 
 echo "syncing time"
-sleep 30
+sleep 45
 
 id=0
 i=0
@@ -131,7 +131,7 @@ tmux new -d -s "primary-${id}" "./../target/release/node -vvv run --keys .node-$
 
 tmux new -d -s "worker-${id}" "./../target/release/node -vvv run --keys .node-${id}.json --committee .committee.json --store .db-${id}-0 --parameters .parameters.json worker --id 0 |& tee logs/worker-${id}.log"
 
-sleep 20
+sleep 15
 
 #Configure Network restrictions
 sudo tc qdisc add dev eth0 root netem delay ${latency}ms limit 400000 rate ${bandwidth}mbit &
