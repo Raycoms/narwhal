@@ -28,7 +28,7 @@ cd ..
 #ln -s ${node} . ; ln -s ${client} .
 
 echo "syncing time"
-sleep 45
+sleep 60
 
 id=0
 i=0
