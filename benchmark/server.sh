@@ -141,7 +141,7 @@ sleep 5
 
 
 echo "--nodes ${ports[*]}"
-tmux new -d -s "client-${id}" "./../target/release/benchmark_client ${myip}:${myport} --size 32 --rate ${fanout} --nodes ${ports[*]} |& tee logs/client-${id}-0.log"
+tmux new -d -s "client-${id}" "./../target/release/benchmark_client ${myip}:${myport} --size 32 --rate ${fanout} --nodes ${myip}:${myport} |& tee logs/client-${id}-0.log"
 
 sleep 300
 
